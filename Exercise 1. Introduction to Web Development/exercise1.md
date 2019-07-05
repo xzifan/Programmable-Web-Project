@@ -85,7 +85,7 @@ pip install flask-sqlalchemy
 
 这个Flask应用十分简单。你可以查阅[Flask官方文档](http://flask.pocoo.org/docs/1.0/quickstart/#a-minimal-application)了解更多。创建一个文件夹然后把以下文件下载到这。  
 
-<a href="Programmable-Web-Project\Exercise 1. Introduction to Web Development/app.py" target="_blank">app.py</a>  
+<a href="/app.py" target="_blank">app.py</a>  
 
 ```python
 from flask import Flask
