@@ -21,7 +21,7 @@
 根据上面所提到的概念，我们可以创建一个拥有三个模型（models）的数据库：album，artist和track. 同时，我们在创建数据库的时候还需要考虑到‘群星’的情况，即还有两个需要特别注意的存在：拥有多个艺术家的专辑（VA album）和基于多个艺术家的播放记录（VA track）。在创建数据库的过程中，我们要考虑到每个模块的‘唯一性约束’；同时在此提醒，在创建模块时，我们应该避免使用原始数据库ID来定位API中的资源，第一是因为原始ID并不具有任何意义，第二是因为这样会给一些不希望未经授权用户推断出有关信息的API带来漏洞。
 
 
-‘唯一性约束’允许我们定义更复杂的唯一性，而不仅仅是将单个列定义为唯一。如果想定义模块中的多个列为唯一，即这些列中的特定值组合只能出现一次，我们可以将多个列设进‘唯一性约束’中。例如，我们可以假设同一个艺术家不会有两个相同名字的专辑（不考虑多次编辑的情况），但是不同艺术家的专辑可能有相同的名字，那么将单个专辑的标题定义为唯一就是不够全面的，而专辑标题加上艺术家ID的组合是可以确定为唯一的，所以此时我们就可以将这两列一起设进‘唯一性约束’中。
+‘唯一性约束’允许我们定义更复杂的唯一性，而不仅仅是将单个列定义为唯一。如果想定义模块中的多个列为唯一，即这些列中的特定值组合只能出现一次，我们可以将多个列设进‘唯一性约束’中。例如，我们可以假设同一个艺术家不会有两个相同名字的专辑（不考虑多次编辑的情况），但是不同艺术家的专辑可能有相同的名字，因此我们并不能将单张专辑的标题定为唯一，而是应该将专辑标题与艺术家ID的组合定为唯一，所以此时我们可以将这两列一起设进‘唯一性约束’中。
 ```python
 def Album(db.Model):
     __table_args__ = (db.UniqueConstraint("title", "artist_id", name="_artist_title_uc"), )
@@ -32,6 +32,8 @@ def Track(db.Model):
     __table_args__ = (db.UniqueConstraint("disc_number", "track_number", "album_id", name="_track_index_uc"), )
 ```
 为了解决‘群星’问题，我们将允许album模块中的外键‘artist’为空，并且加一个可选字段‘va_artist’。最终的数据库代码如下：
+
+[models.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise%202.%20API%20Design/models.py)
 ```python
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -225,6 +227,60 @@ api
 
 ### 练习：添加一个播放记录
 利用上面所学到的概念，你是否能写出一个URI来添加一个新的名为‘Happiness’的播放记录（该播放记录是专辑‘Kallocain’中第三个播放记录，该专辑的作者是‘Paatos’），在此练习中假设这个艺术家的名字是唯一的，并且请在URI中将艺术家的名字全部小写。
+
+### 答案：
+正确答案：`/api/artists/paatos/albums/Kallocain/`
+
+解释：我们第一步需要确定的是这个操作需要用哪一种HTTP方法，由于我们想要给某一张专辑加播放记录，那我们需要用到的方法是POST，所以根据上面资源表中的信息，能用POST方法的资源只有五个（一般只有‘集合’资源才能使用POST方法）：artist collection, albums by artist, albums by VA, album 和 VA album.
+如果我们想给一张只有一个艺术家的专辑加播放记录，很明显我们需要操作的资源是album`/api/artists/{artist}/albums/{album}/`. 
+那么我们可能会好奇播放记录的信息{track：Happiness； disc：3}该如何加进去呢？
+
+注意，我们不能将播放记录的信息放在URI中，而是应该将播放记录的信息放进POST方法的请求中（request body）：
+在这里把所有信息都写在URI中提交给track资源是不正确的（`/api/artists/paatos/albums/Kallocain/3/Happiness/`），因为track作为一个‘个体’资源，并不支持POST方法，我们只能给一个‘集合’中添加新元素，而不能给一个‘个体’添加新记录。
+而`/api/artists/paatos/albums/Kallocain/3/Happiness/`这个URI支持的操作是GET,PUT,DELETE，即当我们想要获取，修改或删除某一个确切的track数据时可以调用该URI。
+
+# 进入超媒体世界
+为了让前端开发者了解到底前端需要传入什么数据以及所期待的返回值，我们需要将API详细记载。
+在本课程中，我们将在API给出的响应中运用超媒体，在本章的例子中，我们选择用[Mason](https://github.com/JornWildt/Mason)作为我们的超媒体格式，因为对于定义超媒体元素并将它们连接到数据中，Mason有着非常清晰的语法。
+
+## 数据表达形式
+我们的API是通过JSON交流的，对数据表达来说，这是一个很简单的序列化过程。如果客户端给`/api/artists/scandal/`发出了一个GET请求，返回的数据将会被序列化，如下：
+```python
+{
+    "name": "Scandal",
+    "unique_name": "scandal",
+    "location": "Osaka, JP",
+    "formed": "2006-08-21",
+    "disbanded": null
+}
+```
+如果客户想要添加一个新的艺术家，他们需要发送一个几乎相同的JSON数据（除去unique_name，因为这个是API服务器自动生成的）。
+这个数据的序列化过程几乎可以运用到所有模块上。
+
+对于‘集体’资源来说，在它们的数据体中会包含一个‘items’的属性--‘items’是一个包含了这个集体资源中一部分数据或全部数据的列表。
+例如albums资源中不仅包含描述自身信息的根级数据，还包括一个存储了track信息的列表。
+值得注意的是，‘items’中并不用将相应的资源数据全部包含进去，只需要包含必要的信息，例如对于album collections来说，在‘items’中包含的数据只需要有专辑标题和艺术家名字就足够了：
+```python
+{
+    "items": [
+        {
+            "artist": "Scandal",
+            "title": "Hello World"
+        },
+    ]
+}
+```
+如果客户想要得到‘items’中某个个体的更多详细信息，可以直接通过URI访问album个体资源来获取。
+
+## 超媒体控件（Hypermedia Controls）
+你可以将API想象成一张地图，而每一个资源就是地图中一个点，一个你最近发送了GET请求的资源就像是一个在说‘你在这里’的点。而‘超媒体控件’能描述逻辑上的下一步操作：下一步你将走到哪里，或者是你在的这个点下一步可以做什么。
+
+
+
+
+
+
+
 
 
 
