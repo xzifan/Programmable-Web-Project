@@ -85,7 +85,7 @@ pip install flask-sqlalchemy
 
 这个Flask应用十分简单。你可以查阅[Flask官方文档](http://flask.pocoo.org/docs/1.0/quickstart/#a-minimal-application)了解更多。创建一个文件夹然后把以下文件下载到这。  
 
-<a href="./app.py" target="_blank">app.py</a>  
+[app.py](./app.py)  
 
 ```python
 from flask import Flask
@@ -98,7 +98,7 @@ def index():
 
 <p>如果你的这段代码文件名也是app.py，你就可以通过输入以下命令启动：
 
-```
+``` 
 flask run
 ```
 
@@ -130,7 +130,6 @@ def hello(name):
 
 那么现在所有以/hello/开头且带有任何字符串的url都会使该函数被调用并将字符串放到name参数中
 
----
 
 > ## 练习1：数学计算
 >
@@ -183,7 +182,7 @@ def hello(name):
 > - 返回：
 >   - 格式化的除法结果字符串或NaN（当除数为0.0时返回NaN)
 >
->> [答案_t1](./app_ex1_t1.py)
+>> [答案_t1](./answer_ex1_t1.py)
 
 ## 查询  
 
@@ -242,7 +241,7 @@ def hello():
 >
 >这个view函数计算角的sine，cosine或tangent值。如果给出的角的单位是度，那首先需要将其转换为弧度。如果func路径变量与任何一个三角运算都不匹配就给出404状态码。如果角度没给出或者查询参数值不正确，则返回400状态码以及相对应的错误信息。
 >
->> [答案_t2](./app_ex1_t2.py)
+>> [答案_t2](./answer_ex1_t2.py)
 
 
 # 数据库和ORM
@@ -309,7 +308,7 @@ In [2]: db.create_all()
 >
 >用Model作为基础类定义这个类，然后像例子中一样调用列构造器。
 >
->> [答案_t3](./app_ex1_t3.py)
+>> [答案_t3](./answer_ex1_t3.py)
 
 ## 添加对象
 
@@ -482,7 +481,7 @@ Out[16]: [<Measurement 1>, <Measurement 2>]
 >
 > 这个模型类还需要定义一个叫product的关系，并带有Product表in_storage属性的反向引用（back reference）。
 >
->> [答案_t4](./app_ex1_t4.py)
+>> [答案_t4](./answer_ex1_t4.py)
 
 **注：SQLite中的外键**  
 
@@ -583,7 +582,7 @@ deployments = db.Table("deployments",
 >
 >**学习目标**：测试当关系限制时会发生什么  
 >
->**在你开始之前**：下载sensorhub应用文件: <a href="./appendix/app_ex1_t5_app.py" download>app.js</a>  
+>**在你开始之前**：下载sensorhub应用文件: <a href="./appendix/app_ex1_t5.py" download>app_ex1_t5.py</a>  
 >
 >将它放在虚拟环境中的文件夹中，然后打开IPython。键入以下两行。其余的你必须弄清楚自己。
 >
