@@ -450,7 +450,7 @@ Mason还为超媒体控件定义了一些额外的属性。其中“method”是
 3. bot寻找一位名叫“Miaou”的艺术家，却找不到它
 4. 机器人寻找“mumeta：add-artist”超媒体控制
 5. bot使用“mumeta：add-artist”控件的href属性和关联的JSON模式编译发送POST请求
-6. 在发送POST请求后，bot从响应中的“location [header]()”中获取新加的艺术家的地址（URI）
+6. 在发送POST请求后，bot从响应中的“location [header](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_2_APIDesign/appendix/locationHeader.md)”中获取新加的艺术家的地址（URI）
 7. bot发送GET给它收到的地址
 8. 从艺术家出发，bot将寻找“mumeta：albums-by”超媒体控制
 9. bot发送GET到该控件的href属性，接收一个空的专辑集合
@@ -543,9 +543,9 @@ This is a collection of all the albums
 ## API Blueprint 示例
 以下是记录API中专辑相关资源的示例。由于文本文件本身过长; 如果你想获得更好的浏览体验，我们建议你将内容复制到新的Apiary项目中。
 
-[musicmeta.md]()
+[musicmeta.md](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_2_APIDesign/appendix/musicmeta.md)
 
-![Apiary editor view after pasting]()
+![Apiary editor view after pasting](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_2_APIDesign/appendix/apiary_editor.png)
 
 重要提示：该编辑器似乎没有自动保存。确保在每次更改后交替按下“保存”按钮 - 首先确保文档是有效（如果不是有效的，请先修复警告）。
 除了主体元素外，所有内容都应缩进1个制表符或4个空格 - 这些空格元素应相对于节标题缩进两次`+ Body`.
