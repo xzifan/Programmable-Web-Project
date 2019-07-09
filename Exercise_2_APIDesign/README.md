@@ -328,7 +328,8 @@ Mason还为超媒体控件定义了一些额外的属性。其中“method”是
 ```
 ## 自定义链接关系
 在定义我们的链接关系的时候，虽然尽可能使用标准是好的，但实际上每个API都有许多控件，其含义无法用任何标准化关系明确表达。因此，Mason文档可以使用链接关系命名空间来扩展可用的链接关系。Mason命名空间定义了前缀及其关联的命名空间（类似于XML命名空间，请参阅[CURIE](https://www.w3.org/TR/curie/)）。该前缀将被添加到[IANA列表](https://www.iana.org/assignments/link-relations/link-relations.xhtml)中未定义的链接关系上。
-当一个链接关系以命名空间前缀为前缀时，它应被解释为在命名空间的末尾附加了关系并使关系唯一 - 即使另一个API定义了具有相同名称的关系，它也会有不同的命名空间前缀。例如，如果想要一个名为“albums-va”的关系来标明一个指向所有VA专辑集合的控件，则其完整标识符可以是http://wherever.this.server.is/musicmeta/link-relations#albums-by。我们可以定义一个名为“mumeta”的命名空间前缀，然后这个控件看上去将会是这样：
+当一个链接关系以命名空间前缀为前缀时，它应被解释为在命名空间的末尾附加了关系并使关系唯一 - 即使另一个API定义了具有相同名称的关系，它也会有不同的命名空间前缀。例如，如果想要一个名为“albums-va”的关系来标明一个指向所有VA专辑集合的控件，则其完整标识符可以是`http://wherever.this.server.is/musicmeta/link-relations#albums-by`,
+我们可以定义一个名为“mumeta”的命名空间前缀，然后这个控件看上去将会是这样：
 ```python
 {
     "@namespaces": {
@@ -350,7 +351,7 @@ Mason还为超媒体控件定义了一些额外的属性。其中“method”是
 
 ## API 地图
 设计API的最后一项业务是创建一个包含所有资源和超媒体控件的完整地图。在这个状态图中，资源是状态，控件是转换。一般来说，只有GET方法用于从一种状态移动到另一种状态，因为其他方法不会返回资源表达。我们已经提出了其他方法作为箭头回到相同的状态。这是完整地图：
-![MusicMeta API state diagram]()
+![MusicMeta API state diagram](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_2_APIDesign/appendix/musicmeta_api_state_diagram.png)
 
 注意 1：地图中每个盒子颜色的代码仅用于教育目的，以显示数据库中的数据是如何连接到资源 - 你不需要在现实生活或自己的项目中实现这样的细节。
 
@@ -379,7 +380,7 @@ Mason还为超媒体控件定义了一些额外的属性。其中“method”是
 你应该能够从上面的状态图中找出这些控件的链接关系。不要忘记使用mumeta命名空间！
 
 ### 答案：
-正确答案：
+正确答案：[answer_ex2_t3](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_2_APIDesign/answer_ex2_t3.json)
 
 
 
