@@ -33,7 +33,7 @@ def Track(db.Model):
 ```
 为了解决‘群星’问题，我们将允许album模块中的外键‘artist’为空，并且加一个可选字段‘va_artist’。最终的数据库代码如下：
 
-[models.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_2_APIDesign/models.py)
+[models.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_2_APIDesign/appendix/models.py)
 ```python
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
