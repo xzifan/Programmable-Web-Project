@@ -33,7 +33,7 @@ def Track(db.Model):
 ```
 为了解决‘群星’问题，我们将允许album模块中的外键‘artist’为空，并且加一个可选字段‘va_artist’。最终的数据库代码如下：
 
-[models.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise%202.%20API%20Design/models.py)
+[models.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_2_APIDesign/models.py)
 ```python
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -225,7 +225,7 @@ api
 可以看到我们遵守了REST原则，每个HTTP方法都按在预期执行。上面这张表告诉了我们很多有用的信息：它显示了可以发出的所有可能的HTTP请求，甚至提示了它们的含义。
 例如，如果你向track资源提交一个PUT申请，它将修改track的数据（更具体地，它会用请求中的数据代替原数据）.
 
-### 练习：添加一个播放记录
+### 练习一：添加一个播放记录
 利用上面所学到的概念，你是否能写出一个URI来添加一个新的名为‘Happiness’的播放记录（该播放记录是专辑‘Kallocain’中第三个播放记录，该专辑的作者是‘Paatos’），在此练习中假设这个艺术家的名字是唯一的，并且请在URI中将艺术家的名字全部小写。
 
 ### 答案：
@@ -274,6 +274,183 @@ api
 
 ## 超媒体控件（Hypermedia Controls）
 你可以将API想象成一张地图，而每一个资源就是地图中一个点，一个你最近发送了GET请求的资源就像是一个在说‘你在这里’的点。而‘超媒体控件’能描述逻辑上的下一步操作：下一步你将走到哪里，或者是你在的这个点下一步可以做什么。
+‘超媒体控件’与资源一起形成了一个能解释说明该如何在API中‘航行’的客户端状态图（state diagram）.在我们刚刚学到的数据表达中，‘超媒体控件’是作为一个额外属性存在于其中的。
+
+超媒体控件是至少两件事情的组合：链接关系（"rel"）和目标URI（"href"）.这说明了两个问题：这个控件做了什么，以及在哪里可以激活这个动作。请注意，链接关系是机器可读的关键字，而不是面向人类的描述。
+许多我们常用的链接关系正在标准化，可参考（[完整列表](https://www.iana.org/assignments/link-relations/link-relations.xhtml)），但是API也可以在需要的时候给出自己的定义 - 只要每个链接关系是一直表达同一种意思即可。
+当客户想要做某事时，他将使用可用的链接关系来找到这个请求应该用到的URI。这意味着使用我们API的客户端永远不需要知道硬编码的URIs - 他们将通过搜索正确的链接关系来找到URI。
+
+Mason还为超媒体控件定义了一些额外的属性。其中“method”是我们将会经常使用的方法，因为它告诉应该使用哪个HTTP方法来发出请求（由于默认方法是GET，所以通常GET方法会被省略）。
+还有“title”可帮助客户（人类用户）弄清楚控件的作用。除此之外，我们还可以定义一个[JSON模式](https://json-schema.org/)来规定发送到API的数据表达格式。
+
+在Mason中，可以通过添加"@controls"属性将超媒体控件附加给任何对象。"@controls"本身就是一个对象，其中的属性是‘链接关系’，其值是至少具有一个属性（href）的对象。例如，这是一个带有多媒体控件的track个体资源，用于返回其所在的专辑的链接关系为（“向上”），编辑其信息的链接关系为（“编辑”）：
+```python
+{
+    "title": "Wings of Lead Over Dormant Seas",
+    "disc_number": 2,
+    "track_number": 1,
+    "length": "01:00:00",
+    "@controls": {
+        "up": {
+            "href": "/api/artists/dirge/albums/Wings of Lead Over Dormant Seas/"
+        },
+        "edit": {
+            "href": "/api/artists/dirge/albums/Wings of Lead Over Dormant Seas/2/1/",
+            "method": "PUT"
+        }
+    }
+}
+```
+或者，如果我们希望集合中的每个个例上都有自己的URI可供客户端使用：
+```python
+{
+    "items": [
+        {
+            "artist": "Scandal",
+            "title": "Hello World",
+            "@controls": {
+                "self": {
+                    "href": "/api/artists/scandal/albums/Hello World/"
+                }
+            }
+        },
+        {
+            "artist": "Scandal",
+            "title": "Yellow",
+            "@controls": {
+                "self": {
+                    "href": "/api/artists/scandal/albums/Yellow/"
+                }
+            }
+        }
+    ]
+}
+```
+## 自定义链接关系
+在定义我们的链接关系的时候，虽然尽可能使用标准是好的，但实际上每个API都有许多控件，其含义无法用任何标准化关系明确表达。因此，Mason文档可以使用链接关系命名空间来扩展可用的链接关系。Mason命名空间定义了前缀及其关联的命名空间（类似于XML命名空间，请参阅[CURIE](https://www.w3.org/TR/curie/)）。该前缀将被添加到[IANA列表](https://www.iana.org/assignments/link-relations/link-relations.xhtml)中未定义的链接关系上。
+当一个链接关系以命名空间前缀为前缀时，它应被解释为在命名空间的末尾附加了关系并使关系唯一 - 即使另一个API定义了具有相同名称的关系，它也会有不同的命名空间前缀。例如，如果想要一个名为“albums-va”的关系来标明一个指向所有VA专辑集合的控件，则其完整标识符可以是http://wherever.this.server.is/musicmeta/link-relations#albums-by。我们可以定义一个名为“mumeta”的命名空间前缀，然后这个控件看上去将会是这样：
+```python
+{
+    "@namespaces": {
+        "mumeta": {
+            "name": "http://wherever.this.server.is/musicmeta/link-relations#"
+        }
+    },
+    "@controls": {
+        "mumeta:albums-va": {
+            "href": "/api/artists/VA/albums"
+        }
+    }
+}
+```
+此外，如果客户端开发人员访问完整的URL，他们应该找到有关链接关系的描述。另请注意，通常这是一个完整的URL，因为服务器部分保证了唯一性。在后面的示例中，你将看到我们正在使用相对URI - 这样即使服务器在不同的地址（最有可能的是localhost：someport）中运行，指向关系描述的链接也会起作用。
+
+有关链接关系的信息必须存储在某处。请注意，这适用于客户端开发人员，即人类。在我们的例子中，一个简单的HTML文档应该足以支持每个关系。这就是我们的命名空间名称以＃结尾的原因。它可以方便地找到每个关系的描述。在继续之前，这里是我们的API使用的自定义链接关系的完整列表：
+`add-album, add-artist, add-track, albums-all, albums-by, albums-va, artists-all, delete`。
+
+## API 地图
+设计API的最后一项业务是创建一个包含所有资源和超媒体控件的完整地图。在这个状态图中，资源是状态，控件是转换。一般来说，只有GET方法用于从一种状态移动到另一种状态，因为其他方法不会返回资源表达。我们已经提出了其他方法作为箭头回到相同的状态。这是完整地图：
+![MusicMeta API state diagram]()
+
+注意 1：地图中每个盒子颜色的代码仅用于教育目的，以显示数据库中的数据是如何连接到资源 - 你不需要在现实生活或自己的项目中实现这样的细节。
+
+注意 2：地图中的链接关系“item”并不存在，这实际上是“self”。在此图中，“item”用于表示这是通过个体数据的“self”链接从集合转换到个体。
+
+这样的映射图在设计API时很有用，应该在设计API返回每个单独的资源表达之前完成。由于所有操作都在这个地图中可见，因此更容易查看是否缺少某些内容。
+在制作图表时请记住，必须要有从一个状态到另一个状态的联通路径（连通原理）。在我们的例子中，我们在URI树中有三个独立的分支，
+因此我们必须确保每个分支之间的转换（例如，AlbumCollection资源具有“artists-all”和“albums-va”）。
+
+### 练习二：The Road to Transcendence
+考虑上面的状态图。我们假设你是一个机器客户端。你当前正站在ArtistCollection节点上，目标是要查找和修改有关一个有群星艺术家的专辑“Transcendental”（Mono和The Ocean的合作）的数据。
+为了做到这一点，必须遵循哪些链接？这条路径有意义吗？
+请给出最短的链接关系列表（使用与上面状态图中相同的名称），从而将你从ArtistCollection导出到修改VA专辑的数据（edit）。
+
+### 答案：	
+正确答案：`albums-all,albums-va,item,edit`
+
+注意，最后我们是需要修改VA专辑的数据，所以到达了VAAlbum我们还需要通过访问‘edit’链接关系来修改数据。
+
+## 入口点
+关于API映射图的最后一点概念是入口点（Entry Point）。这应该是API的根源（在我们的例子中：/api/。它有点像API的索引页面。它不是资源，通常不返回（这就是为什么它不在状态图中的原因）。它只是显示了客户在“进入”API时的合理启动选项。
+在我们的例子中，它应该包含多媒体控件来调用GET方法来获取艺术家集合或专辑集合（也有可能是VA专辑集合）。
+
+### 练习三：Enter the MAZE
+创建一个MusicMeta API入口点的JSON文档。它应该包含两个超媒体控件：链接到艺术家集合（Artist Collection），并链接到专辑集合（Album Collection）。
+你应该能够从上面的状态图中找出这些控件的链接关系。不要忘记使用mumeta命名空间！
+
+### 答案：
+正确答案：
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
