@@ -20,7 +20,7 @@ pip install requests
 
 为了能正常工作，**您需要将您在[练习2最后一个任务](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_2_APIDesign/README.md#练习四api-blueprint---artist)中完成的Artist资源与下面我们提供的文档结合起来**. (请确保您在练习2中最后一个任务中完成的文档是正确的)
 
-[musicmeta.md]()
+[musicmeta.md](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/musicmeta.md)
 
 查看Apiary文档时，可以在“检查器” (Inspector) 选项卡中找到模型服务器的地址。
 
@@ -48,7 +48,7 @@ Out[8]: '/api/artists/mono/'
 ```
 您可以从找到其地址的同一“检查器”选项卡中查看发送到模拟服务器的请求。请注意，它会将您发送到示例的内容进行比较，并会说（对于上述两个请求）它们都不正确（因为它们缺少标头 - headers，而Apiary认为请求中的四个字段都是必填字段）。
 
-[Some example requests sent while compiling this material]()
+[Some example requests sent while compiling this material](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/MusicMetaAPI_client_example.png)
 
 但是，从控制台可以看到，这些请求仍然得到了我们预期的响应，因此它足以进行客户端测试。但是如果您尝试将POST请求发送到具有内容类型验证的真实API服务器您将被拒绝（在服务器尝试使用`request.json`时发生）。所以您需要设置标头，例如下面的PUT示例：
 ```python
