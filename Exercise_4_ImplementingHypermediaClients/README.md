@@ -337,7 +337,7 @@ def compare_with_mapping(s, tag, body, schema, mapping):
 >**在你开始之前：**
 >你可以使用提交脚本示例中原样的`submit_data`函数。唯一的区别是任务中的检查器将提供完整的URLs作为控件中的“href”属性值。因此，你应该在提交答案之前删除API_URL常量或将其设置为`""`。
 >
->同时您应该下载并[运行]()最新版本的Sensorhub API，这将有助于您进行测试。
+>同时您应该下载并[运行](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/exercixe3.md)最新版本的Sensorhub API，这将有助于您进行测试。
 >
 >[sensorhub.py]()
 >
@@ -367,11 +367,11 @@ def compare_with_mapping(s, tag, body, schema, mapping):
 >        body = resp.json()
 >        prompt_from_schema(s, body["@controls"]["senhub:add-sensor"])
 >```
->**正确答案**：[answer_ex4_t3]()
+>**正确答案**：[answer_ex4_t3](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/answer_ex4_t3.py)
 
 ### 结束语和完整示例
 虽然这是一个具体的例子，但它应该让你很好地了解在访问一个超媒体API时如何进行客户端开发：将假设最小化，并尽量让API资源表达来指导你的客户。当您需要进行硬编码时，请始终将逻辑基于来自文档中的信息。始终避免过于依赖API来工作​​ - 这种解决方法通常依赖于API未正式支持的功能，并且可能在API更新时随时停止工作。让客户端根据API调整自己也是一种尊重API开发人员的方式，当没有客户端要依赖古老/非预期的功能时，维护API的工作会得更加容易。
 
 下面提供一个完整的例子。如果你想在没有修改的情况下运行它，你需要本地中存有MP3文件，并且其标签数据与你的Apiary文档的例子相符。提交脚本目前不支持VA专辑。
 
-[mumeta_submit.py]()
+[mumeta_submit.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/mumeta_submit.py)
