@@ -339,7 +339,7 @@ def compare_with_mapping(s, tag, body, schema, mapping):
 >
 >同时您应该下载并[运行](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/exercixe3.md)最新版本的Sensorhub API，这将有助于您进行测试。
 >
->[sensorhub.py]()
+>[sensorhub.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/sensorhub.py)
 >
 >**实施功能：**`prompt_from_schema`
 >* 参数：
