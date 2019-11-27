@@ -377,15 +377,15 @@ def compare_with_mapping(s, tag, body, schema, mapping):
 [mumeta_submit.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/mumeta_submit.py)
 
 ## 使用Javascript的API客户端
-在本节中，我们将讨论如何使用Javascript和jQuery创建浏览器客户端。这种客户端的典型示例是一个与API交互的图形用户界面。在此我们只对代码的完成做出一些细节上的点评，如果你需要学习Javascript基础知识，可以参考其他[来源](https://lovelace.oulu.fi/ohjelmoitava-web/programmable-web-project-spring-2019/pwp-course-material/#javascript)。如果你已经了解Python，那么Javascript就是一门比较容易学会的语言。浏览器端脚本的主要组件之一是DOM操作。因为jQuery能做的[DOM]()操作比JavaScript本身能做的更好，因此，尽管技术上来说jQuery只是一个外部库，但其实它是一个非常重要的组成部分。实际上，本材料中的示例几乎完全是使用jQuery编写的。
+在本节中，我们将讨论如何使用Javascript和jQuery创建浏览器客户端。这种客户端的典型示例是一个与API交互的图形用户界面。在此我们只对代码的完成做出一些细节上的点评，如果你需要学习Javascript基础知识，可以参考其他[来源](https://lovelace.oulu.fi/ohjelmoitava-web/programmable-web-project-spring-2019/pwp-course-material/#javascript)。如果你已经了解Python，那么Javascript就是一门比较容易学会的语言。浏览器端脚本的主要组件之一是DOM操作。因为jQuery能做的[DOM](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#dom)操作比JavaScript本身能做的更好，因此，尽管技术上来说jQuery只是一个外部库，但其实它是一个非常重要的组成部分。实际上，本材料中的示例几乎完全是使用jQuery编写的。
 
 因为在本课程中，我们不要求你对Javascript像对Python那样熟悉，所以我们不会立即开始制作尽可能动态的代码。相反，我们将在不充分利用超媒体优点的情况下展示一些基本操作。
 
-**学习目标**：了解面向人类用户的基于浏览器的API客户端的基础知识。使用jQuery制造[Ajax]()请求，使用jQuery操作DOM。
+**学习目标**：了解面向人类用户的基于浏览器的API客户端的基础知识。使用jQuery制造[Ajax](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#ajax)请求，使用jQuery操作DOM。
 
 ### 关于Javascript样式
 在我们的示例中，我们遵循此[样式指南](https://www.crockford.com/code.html)并期望您也这样做。我们也鼓励使用[JSLint](https://www.jslint.com/)。Javascript可以是一种非常狡猾的调试语言 —— 最好不要因为代码的质量差而让其变得更加困难。当对jQuery脚本使用JSLint时，记得要在底部的全局变量盒子中加`$`和`document`，这样能避免了一大堆`"undeclared '$'"`的错误。
-![Globals look like thiss]()
+![Globals look like thiss](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/jslint_options.png)
 
 我们还建议你在严格模式下运行Javascript。这会引发出更多错误，但这使后期的整体调试和维护更容易。您可以在文件开头通过以下几行来条用严格模式运行脚本：
 ```python
@@ -393,7 +393,7 @@ def compare_with_mapping(s, tag, body, schema, mapping):
 ```
 
 ### 服务器端准备
-对于此示例，我们将用与API本身相同的服务器应用程序为客户端提供服务。它实际上只是一个提供静态HTML页面和几个脚本文件（jQuery和我们的代码）的视图。站在API角度来看，从同一台服务器上提供服务也可以满足[跨域资源共享（CORS）]()的需求定义。为了遵循此示例，请[下载jQuery](https://jquery.com/download/)并在项目的静态文件夹创建以下结构：
+对于此示例，我们将用与API本身相同的服务器应用程序为客户端提供服务。它实际上只是一个提供静态HTML页面和几个脚本文件（jQuery和我们的代码）的视图。站在API角度来看，从同一台服务器上提供服务也可以满足[跨域资源共享（CORS）](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#cors)的需求定义。为了遵循此示例，请[下载jQuery](https://jquery.com/download/)并在项目的静态文件夹创建以下结构：
 ```python
 静态
 ├──CSS 
@@ -401,13 +401,13 @@ def compare_with_mapping(s, tag, body, schema, mapping):
 ├──profiles
 └──scripts
 ```
-将`jquery.js`放到到脚本文件夹中，将所有的`HTML文件`都放到html文件夹中。关于HTML文件，其实并没有什么特别令人惊奇的，它只是定义了几个div元素，div用来放置从API端接收[资源]()表达。您还可以使用此简短的CSS文件来避免加载页面时的404报告。也可以命名您自己的脚本文件`admin.js`或适当更改HTML文件中的引用。
+将`jquery.js`放到到脚本文件夹中，将所有的`HTML文件`都放到html文件夹中。关于HTML文件，其实并没有什么特别令人惊奇的，它只是定义了几个div元素，div用来放置从API端接收[资源](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#resources)表达。您还可以使用此简短的CSS文件来避免加载页面时的404报告。也可以命名您自己的脚本文件`admin.js`或适当更改HTML文件中的引用。
 
-[admin.html]()
+[admin.html](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/admin.html)
 
-[admin.css]()
+[admin.css](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/admin.css)
 
-然后将下面这几行代码放入单个文件应用程序中的资源[路由]()后，如果你遵循更精细的项目结构指南，你可以将其放进`__init__.py`中的函数`create_app`内部。
+然后将下面这几行代码放入单个文件应用程序中的资源[路由](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#routing)后，如果你遵循更精细的项目结构指南，你可以将其放进`__init__.py`中的函数`create_app`内部。
 ```python
 @app.route("/admin/")
 def admin_site():
@@ -416,12 +416,12 @@ def admin_site():
 保存并启动服务器后，您应该能够访问本地的`/admin/`，并查看HTML文件的呈现内容（此时的内容并不多）。
 
 这里是最新版本的Sensorhub API单文件版本：
-[sensorhub.py]()
+[sensorhub.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/sensorhub_1.py)
 
 ### 调用Ajax
 Ajax在历史上代表Asynchronous Javascript And Xml，拼写为AJAX。但是从XML被大量弃用那时起，Ajax就不再是首字母缩略词这么简单，而主要被用作于术语。然而，它的异步性质仍然存在。由于这种性质，Ajax是非阻塞的：在使用Ajax发送请求之后，客户端脚本将继续运行。如果没有这个性质，浏览使用了Ajax的网页就会受到持续冻结的困扰（由于现在的网页做了过多的Ajax调用，这种困扰将是有持续性的）。从编程的角度来看，它还意味着您的脚本在发出Ajax请求后无法获取及时的响应。
 
-在上面的Python客户端中，API的调用总是会阻塞 - 这实际上是因为脚本在暂停等待响应，而当有一个响应时，它会被存储到resp变量中。在使用非阻塞调用时，由于在调用时响应尚未就绪，所以此时响应无法直接被存储到变量中。所以，代码必须注册一个[回调函数]()，这样它会在响应准备就绪时处理它。在大多数情况下，至少有一个回调函数会被注册用来处理错误。所有回调函数都需要以某种方式进行注册。通过jQuery，所有的回调函数都会被收集到一个给ajax函数的对象中。在实践中，需要获得如下入口点：
+在上面的Python客户端中，API的调用总是会阻塞 - 这实际上是因为脚本在暂停等待响应，而当有一个响应时，它会被存储到resp变量中。在使用非阻塞调用时，由于在调用时响应尚未就绪，所以此时响应无法直接被存储到变量中。所以，代码必须注册一个[回调函数](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#callback)，这样它会在响应准备就绪时处理它。在大多数情况下，至少有一个回调函数会被注册用来处理错误。所有回调函数都需要以某种方式进行注册。通过jQuery，所有的回调函数都会被收集到一个给ajax函数的对象中。在实践中，需要获得如下入口点：
 ```python
 $.ajax({
     url: "/api/",
@@ -434,7 +434,7 @@ $.ajax({
     }
 });
 ```
-`$`是一个用于所有jQuery函数的前缀（它也可以自行调用，但现在不用担心这个）。该`$.ajax`函数将设置对象作为其参数。[这里](https://api.jquery.com/jquery.ajax/#jQuery-ajax-settings)是一个所有在此设置对象中的可以包含的属性值列表。在这里我们不打算全部使用它们。在示例中，我们将回调定义为[匿名函数]()。分配一个现有函数给回调函数是完全合法的。
+`$`是一个用于所有jQuery函数的前缀（它也可以自行调用，但现在不用担心这个）。该`$.ajax`函数将设置对象作为其参数。[这里](https://api.jquery.com/jquery.ajax/#jQuery-ajax-settings)是一个所有在此设置对象中的可以包含的属性值列表。在这里我们不打算全部使用它们。在示例中，我们将回调定义为[匿名函数](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#anonymous-functions)。分配一个现有函数给回调函数是完全合法的。
 ```python
 $.ajax({
     url: "/api/",
@@ -444,7 +444,8 @@ $.ajax({
 ```
 另一件完全合法的事情是，如果您不需要功能参数，可以直接省略，只要将您不需要的功能参数放在最后。例如，我们可以省略jqxhr（jQuery XmlHttpRequest对象），因为它没有被使用（当你想访问标题时你才需要它）。同样合法的是在`$.ajax`中将url作为第一个参数，将其余设置作为第二个参数（函数重载的乐趣）。
 
-无论它们是如何定义的，一旦服务器响应了我们的Ajax调用，其中一个函数就会被调用。如果成功，第一个参数将获得[响应主体]()作为已编译的Javascript对象。之后通常会发生的是[DOM]()操作，将来自响应的数据存入DOM以供用户查看。
+无论它们是如何定义的，一旦服务器响应了我们的Ajax调用，其中一个函数就会被调用。如果成功，第一个参数将获得[响应主体](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#response-body
+)作为已编译的Javascript对象。之后通常会发生的是[DOM](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#dom)操作，将来自响应的数据存入DOM以供用户查看。
 
 还有另一种方法可以通过使用一个称为Promise的对象来注册回调。以下代码具有相同的功能：
 ```python
@@ -649,7 +650,7 @@ function getSubmittedSensor(data, status, jqxhr) {
 ```
 
 ### 完整示例
-您可以从下面下载完整的示例：[admin.js]()
+您可以从下面下载完整的示例：[admin.js](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/admin.js)
 
 >#### 练习四：分页器 - 测量日
 >分页通常用于大型数据集，而您无疑已经在网络上看到了很多类似的东西。这意味着数据将以一定大小的量被读取，同时会显示一些控件：“next”（“>”）和“prev”（“<”）（有时也包括“first”（“<<”）和“last”（“>>”））。这也与APIs一起结合起来使用。在本练习中，您将实现对测量数据的分页。
@@ -657,7 +658,7 @@ function getSubmittedSensor(data, status, jqxhr) {
 >**学习目标**：使用分页控件从API中提取数据。显示带有分页数据以及相关DOM操纵。
 >
 >**在你开始之前**：我们已经对Sensorhub API服务器进行了最终更新。此更新包含API方面对分页操作的支持，其中分页单位为50。您可以在下面进行下载。
->[app.py]()
+>[app.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/app.py)
 >请记住，您需要创建一个数据库并填充数据。我们在SensorHub API中包含了一些操作命令以简化此任务。[Flask API项目布局教程](https://lovelace.oulu.fi/ohjelmoitava-web/programmable-web-project-spring-2019/flask-api-project-layout/#using-the-command-line-interface)中对它们进行了说明。如果您只想启动它并运行，请执行以下命令：
 >```python
 >flask init-db
@@ -672,7 +673,7 @@ function getSubmittedSensor(data, status, jqxhr) {
 >您需要在导航div元素中添加其他导航控件元件，并应该将其添加到末尾（即作为第二个元素）。像之前的其他链接一样，单击该链接时，`followLink`也会被调用，其中的最后一个参数是`renderMeasurements`函数。同时，可以从“senhub：measurements-first”控件中找到此链接的href属性。
 >
 >**新函数**：`renderMeasurements`
->当Ajax被调用并返回时，此函数应具有测量集合资源。该集合包含从[查询参数]()定义中起始索引开始的50个测量。每个测量资源都有两个属性：
+>当Ajax被调用并返回时，此函数应具有测量集合资源。该集合包含从[查询参数](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#请求参数)定义中起始索引开始的50个测量。每个测量资源都有两个属性：
 >* 时间：完整的ISO时间戳记（字符串）
 >* 值：测量值（浮点数）
 >
