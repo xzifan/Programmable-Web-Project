@@ -659,6 +659,7 @@ function getSubmittedSensor(data, status, jqxhr) {
 >
 >**在你开始之前**：我们已经对Sensorhub API服务器进行了最终更新。此更新包含API方面对分页操作的支持，其中分页单位为50。您可以在下面进行下载。
 >[app.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/app.py)
+>
 >请记住，您需要创建一个数据库并填充数据。我们在SensorHub API中包含了一些操作命令以简化此任务。[Flask API项目布局教程](https://lovelace.oulu.fi/ohjelmoitava-web/programmable-web-project-spring-2019/flask-api-project-layout/#using-the-command-line-interface)中对它们进行了说明。如果您只想启动它并运行，请执行以下命令：
 >```python
 >flask init-db
@@ -691,5 +692,5 @@ function getSubmittedSensor(data, status, jqxhr) {
 >* 在表格中显示50个测量值
 >
 >最后，您的用户界面应该具有三个不同的屏幕：一个显示传感器列表，一个显示有关特定传感器的信息，另一个显示传感器的测量值。下图为示例：
-[理想示例：](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/ex4.png)
+![理想示例：](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/ex4.png)
 
