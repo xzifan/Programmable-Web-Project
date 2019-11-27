@@ -691,5 +691,5 @@ function getSubmittedSensor(data, status, jqxhr) {
 >* 在表格中显示50个测量值
 >
 >最后，您的用户界面应该具有三个不同的屏幕：一个显示传感器列表，一个显示有关特定传感器的信息，另一个显示传感器的测量值。下图为示例：
-[理想示例：]()
+[理想示例：](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/ex4.png)
 
