@@ -48,7 +48,7 @@ Out[8]: '/api/artists/mono/'
 ```
 您可以从找到其地址的同一“检查器”选项卡中查看发送到模拟服务器的请求。请注意，它会将您发送到示例的内容进行比较，并会说（对于上述两个请求）它们都不正确（因为它们缺少标头 - headers，而Apiary认为请求中的四个字段都是必填字段）。
 
-[Some example requests sent while compiling this material](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/MusicMetaAPI_client_example.png)
+![Some example requests sent while compiling this material](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/MusicMetaAPI_client_example.png)
 
 但是，从控制台可以看到，这些请求仍然得到了我们预期的响应，因此它足以进行客户端测试。但是如果您尝试将POST请求发送到具有内容类型验证的真实API服务器您将被拒绝（在服务器尝试使用`request.json`时发生）。所以您需要设置标头，例如下面的PUT示例：
 ```python
@@ -64,7 +64,7 @@ In [9]: resp = requests.post(SERVER_URL + "/api/artists/scandal/",
 >假设我们需要用到的URL的主机部分(host part：指示服务器地址的URL部分。例如，lovelace.oulu.fi就是一个主机部分，此部分确定请求在万维网中的发送位置（即哪个IP地址）。)已经被存储在一个常量中：SERVER_URL，请写一行代码来删除Evoken的专辑 - Hypnagogia。如果您不记得如何请求，请查看>练习2中的MusicMeta apiary文档。
 >请记住，代码中艺术家名称全为小写，而专辑名称则为首字母大>写。
 >
->**正确答案**：`requests.delete(SERVER_URL + "/api/>artists/evoken/albums/Hypnagogia/")`
+>**正确答案**：`requests.delete(SERVER_URL + "/api/artists/evoken/albums/Hypnagogia/")`
 
 通常使用超媒体控件发出请求时，客户端应该使用控件元素中包含的方法。执行此操作时，使用请求函数比使用特定的方法更方便。假设我们有一个名为crtl的字典类控件：
 
@@ -375,3 +375,322 @@ def compare_with_mapping(s, tag, body, schema, mapping):
 下面提供一个完整的例子。如果你想在没有修改的情况下运行它，你需要本地中存有MP3文件，并且其标签数据与你的Apiary文档的例子相符。提交脚本目前不支持VA专辑。
 
 [mumeta_submit.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/mumeta_submit.py)
+
+## 使用Javascript的API客户端
+在本节中，我们将讨论如何使用Javascript和jQuery创建浏览器客户端。这种客户端的典型示例是一个与API交互的图形用户界面。在此我们只对代码的完成做出一些细节上的点评，如果你需要学习Javascript基础知识，可以参考其他[来源](https://lovelace.oulu.fi/ohjelmoitava-web/programmable-web-project-spring-2019/pwp-course-material/#javascript)。如果你已经了解Python，那么Javascript就是一门比较容易学会的语言。浏览器端脚本的主要组件之一是DOM操作。因为jQuery能做的[DOM](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#dom)操作比JavaScript本身能做的更好，因此，尽管技术上来说jQuery只是一个外部库，但其实它是一个非常重要的组成部分。实际上，本材料中的示例几乎完全是使用jQuery编写的。
+
+因为在本课程中，我们不要求你对Javascript像对Python那样熟悉，所以我们不会立即开始制作尽可能动态的代码。相反，我们将在不充分利用超媒体优点的情况下展示一些基本操作。
+
+**学习目标**：了解面向人类用户的基于浏览器的API客户端的基础知识。使用jQuery制造[Ajax](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#ajax)请求，使用jQuery操作DOM。
+
+### 关于Javascript样式
+在我们的示例中，我们遵循此[样式指南](https://www.crockford.com/code.html)并期望您也这样做。我们也鼓励使用[JSLint](https://www.jslint.com/)。Javascript可以是一种非常狡猾的调试语言 —— 最好不要因为代码的质量差而让其变得更加困难。当对jQuery脚本使用JSLint时，记得要在底部的全局变量盒子中加`$`和`document`，这样能避免了一大堆`"undeclared '$'"`的错误。
+![Globals look like thiss](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/jslint_options.png)
+
+我们还建议你在严格模式下运行Javascript。这会引发出更多错误，但这使后期的整体调试和维护更容易。您可以在文件开头通过以下几行来条用严格模式运行脚本：
+```python
+"use strict"; 
+```
+
+### 服务器端准备
+对于此示例，我们将用与API本身相同的服务器应用程序为客户端提供服务。它实际上只是一个提供静态HTML页面和几个脚本文件（jQuery和我们的代码）的视图。站在API角度来看，从同一台服务器上提供服务也可以满足[跨域资源共享（CORS）](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#cors)的需求定义。为了遵循此示例，请[下载jQuery](https://jquery.com/download/)并在项目的静态文件夹创建以下结构：
+```python
+静态
+├──CSS 
+├──HTML 
+├──profiles
+└──scripts
+```
+将`jquery.js`放到到脚本文件夹中，将所有的`HTML文件`都放到html文件夹中。关于HTML文件，其实并没有什么特别令人惊奇的，它只是定义了几个div元素，div用来放置从API端接收[资源](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#resources)表达。您还可以使用此简短的CSS文件来避免加载页面时的404报告。也可以命名您自己的脚本文件`admin.js`或适当更改HTML文件中的引用。
+
+[admin.html](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/admin.html)
+
+[admin.css](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/admin.css)
+
+然后将下面这几行代码放入单个文件应用程序中的资源[路由](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#routing)后，如果你遵循更精细的项目结构指南，你可以将其放进`__init__.py`中的函数`create_app`内部。
+```python
+@app.route("/admin/")
+def admin_site():
+    return app.send_static_file("html/admin.html")
+```
+保存并启动服务器后，您应该能够访问本地的`/admin/`，并查看HTML文件的呈现内容（此时的内容并不多）。
+
+这里是最新版本的Sensorhub API单文件版本：
+[sensorhub.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/sensorhub_1.py)
+
+### 调用Ajax
+Ajax在历史上代表Asynchronous Javascript And Xml，拼写为AJAX。但是从XML被大量弃用那时起，Ajax就不再是首字母缩略词这么简单，而主要被用作于术语。然而，它的异步性质仍然存在。由于这种性质，Ajax是非阻塞的：在使用Ajax发送请求之后，客户端脚本将继续运行。如果没有这个性质，浏览使用了Ajax的网页就会受到持续冻结的困扰（由于现在的网页做了过多的Ajax调用，这种困扰将是有持续性的）。从编程的角度来看，它还意味着您的脚本在发出Ajax请求后无法获取及时的响应。
+
+在上面的Python客户端中，API的调用总是会阻塞 - 这实际上是因为脚本在暂停等待响应，而当有一个响应时，它会被存储到resp变量中。在使用非阻塞调用时，由于在调用时响应尚未就绪，所以此时响应无法直接被存储到变量中。所以，代码必须注册一个[回调函数](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#callback)，这样它会在响应准备就绪时处理它。在大多数情况下，至少有一个回调函数会被注册用来处理错误。所有回调函数都需要以某种方式进行注册。通过jQuery，所有的回调函数都会被收集到一个给ajax函数的对象中。在实践中，需要获得如下入口点：
+```python
+$.ajax({
+    url: "/api/",
+    success: function (body, status, jqxhr) {
+        console.log("RESPONSE (" + status + ")");
+        console.log(body);
+    },
+    error: function (jqxhr, type, error) {
+        console.log("ERROR (" + type + ") - " + error);
+    }
+});
+```
+`$`是一个用于所有jQuery函数的前缀（它也可以自行调用，但现在不用担心这个）。该`$.ajax`函数将设置对象作为其参数。[这里](https://api.jquery.com/jquery.ajax/#jQuery-ajax-settings)是一个所有在此设置对象中的可以包含的属性值列表。在这里我们不打算全部使用它们。在示例中，我们将回调定义为[匿名函数](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#anonymous-functions)。分配一个现有函数给回调函数是完全合法的。
+```python
+$.ajax({
+    url: "/api/",
+    success: handleEntry,
+    error: handleError
+});
+```
+另一件完全合法的事情是，如果您不需要功能参数，可以直接省略，只要将您不需要的功能参数放在最后。例如，我们可以省略jqxhr（jQuery XmlHttpRequest对象），因为它没有被使用（当你想访问标题时你才需要它）。同样合法的是在`$.ajax`中将url作为第一个参数，将其余设置作为第二个参数（函数重载的乐趣）。
+
+无论它们是如何定义的，一旦服务器响应了我们的Ajax调用，其中一个函数就会被调用。如果成功，第一个参数将获得[响应主体](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#response-body
+)作为已编译的Javascript对象。之后通常会发生的是[DOM](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#dom)操作，将来自响应的数据存入DOM以供用户查看。
+
+还有另一种方法可以通过使用一个称为Promise的对象来注册回调。以下代码具有相同的功能：
+```python
+$.ajax("/api/")
+    .done(function (body, status, jqxhr) {
+        console.log("RESPONSE (" + status + ")");
+        console.log(body);
+    })
+    .fail(function (jqxhr, type, error) {
+        console.log("ERROR (" + type + ") - " + error);
+    });
+```
+在本练习中，我们建议您使用第一种方法，即在设置对象中传递回调。下面所有示例也将使用这个方法。Promise对象是一个更新的技术，并引入了旧方法无法实现的新选项，例如它能够向同一事件添加多个回调。
+
+### 基本的DOM操作
+尽管jQuery使Ajax调用更简洁，但jQuery的主要目的是使DOM操作更加简洁清晰。文档对象模型是一个编程接口，它允许Javascript即时（即无需重新加载页面）修改文档（即网页）的内容。它将HTML呈现为树状结构，其中元素可以直接通过它们自己的属性（例如，类或id）或通过诸如父，子，下一个和上一个的关系来定位。在设置样式时，一下基本的jQuery选择使用与CSS语法相同：
+```python
+$("table")                      // selects all table elements
+$(".resulttable")               // selects any elements where class="resulttable"
+$("#sensorlist")                // selects the element where id="sensorlist"
+$(".resulttable tbody tr")      // selects all rows from all tables where class="resulttable"
+```
+如您所见，jQuery本身可以被调用。这将返回一个查询对象，该对象中具有可用于对所有选定元素立即执行操作的方法。通常，在尝试选择一个特定元素时最好使用id，而在选择一组相关元素时最好使用class。如上例所示，元素类型会经常被使用，即在另一选择中选择一种类型的所有元素。这里有[很多选择器](https://api.jquery.com/category/selectors/)可供选择，但是建议您可以从最基本的开始。
+
+通常，测试选择和操作的最佳方法是使用浏览器的Javascript控制台。在Chrome中，你可以用`Ctrl`+ `Shift`+ `j`打开，在Firefox中可通过 `Ctrl`+ `Shift`+ `k`打开（使用`j`也可以进入控制台，但是是在一个单独的窗口）。从现在开始，为了测试命令，您可以使用API​​服务器中的`"/admin/"`URL中提供的HTML页面。
+
+选择之后，就[可以](https://api.jquery.com/category/manipulation/)进行操作了。一种基本的操纵方法是`html`，它可用于将所选元素内的HTML设置为争论中的内容（请注意：如果未提供参数，则此方法将返回元素内的HTML而不是对其进行设置）。这是在用户界面中设置错误消息区域（带有错误类的[HTML div](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div)元素）内容的一种方法：
+```python
+$("div.notification").html("<p class='error'>Guru meditation error</p>");
+```
+另一个简单的常见操作是清除一个元素内的所有内容，例如，当我们收到要显示的另一组数据时可以选择清除整张表。这是通过`empty`完成的。在处理表时，我们通常会选择`<tbody>`元素，除非您想更改表的标题。在这里，我们只清除数据行。
+```python
+$(".resulttable tbody").empty();
+```
+关于表，我们要做的最后一个非常常见的事情是将元素追加到另一个元素内-通常是表，表单或列表中（即`<ol>`或`<ul>`）。这是通过该`append`方法完成的。
+```python
+$(".resulttable tbody").append("<tr><td>placeholder-sensor</td><td>placeholder-model</td></tr>");
+```
+还有一些非常常见的操作例如通过`attr`改变元素的属性，或者用过`css`改变其外观，但我们在本材料中不再做过多的示例。这些与用户界面中的隐藏/显示和激活/停用元素有关，并且显然还有更多的操作。
+
+### 渲染数据集合
+我们已经知道了如何进行Ajax调用以及如何将数据插入HTML页面，现在，我们可以研究一些基本的客户端操作。首先是将收集的资源项目存放在表中来显示。首先，我们先来做的将数据填充到表中。
+
+为此，我们需要对`"/api/sensors/"`调用一个Ajax，并将结果填写至成功结果的回调函数中的[HTML表格](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table)内。下例展示了一个使用命名函数作为处理器的情况。由于执行Ajax请求本身总是相同的，所以最好通过函数将获取的结果作为参数传递并呈现到HTML页面：
+```python
+function renderError(jqxhr) {
+    let msg = jqxhr.responseJSON["@error"]["@message"];
+    $("div.notification").html("<p class='error'>" + msg + "</p>");
+}
+
+function getResource(href, renderFunction) {
+    $.ajax({
+        url: href,
+        success: renderFunction,
+        error: renderError
+    });
+}
+
+$(document).ready(function () {
+    getResource("http://localhost:5000/api/sensors/", renderSensors);
+});
+```
+对于此客户端的第一次迭代，我们可以利用一个资源去确定数据渲染的函数。这意味着我们是在知道表头是什么及有哪些列数据的情况下对该函数进行编码的。在这种情况下，将整行的HTML值构造为字符串并将其填充到表的相关部分中是最简单的，标题使用`html`，利用`append`添加数据。通过这些决定，实现起来就非常简单，主要是以下这两个功能：
+```python
+function sensorRow(item) {
+    return "<tr><td>" + item.name +
+            "</td><td>" + item.model +
+            "</td><td>" + item.location + "</td></tr>";
+}
+
+function renderSensors(body) {
+    $(".resulttable thead").html(
+        "<tr><th>Name</th><th>Model</th><th>Location</th></tr>"
+    );
+    let tbody = $(".resulttable tbody");
+    body.items.forEach(function (item) {
+        tbody.append(sensorRow(item));
+    });
+}
+```
+
+### 解析表单
+在客户端显示数据是一回事-能够提交数据又是另一回事。提交数据一般是通过[HTML表单](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form)来调用Javascript函数来完成，而不是通过POST直接提交到服务器。在第一个迭代中，我们将再次提供指向特定资源的函数，这意味着表单字段是硬编码的。同时，我们使用图式标记哪些字段是必填字段，并检索字段说明。
+```python
+function renderSensorForm(ctrl) {
+    let form = $("<form>");
+    let name = ctrl.schema.properties.name;
+    let model = ctrl.schema.properties.model;
+    form.attr("action", ctrl.href);
+    form.attr("method", ctrl.method);
+    form.submit(submitSensor);
+    form.append("<label>" + name.description + "</label>");
+    form.append("<input type='text' name='name'>");
+    form.append("<label>" + model.description + "</label>");
+    form.append("<input type='text' name='model'>");
+    ctrl.schema.required.forEach(function (property) {
+        $("input[name='" + property + "']").attr("required", true);
+    });
+    form.append("<input type='submit' name='submit' value='Submit'>");
+    $("div.form").html(form);
+}
+```
+在这里，我们用`attr`来设置表单的各种属性以及申明需要强制输入字段的必需属性。我们将通过`submit`来设置一个在提交表单时（即，当用户按下Submit按钮时）将要调用的函数。我们还将通过特定语法来通过调用属性（"element[attribute='value']"）去选择元素。剩下需要实现的就是将数据真实准确地发送到服务器的功能。首先让我们来看下面这个示例：
+```python
+function submitSensor(event) {
+    event.preventDefault();
+
+    let data = {};
+    let form = $("div.form form");
+    data.name = $("input[name='name']").val();
+    data.model = $("input[name='model']").val();
+    sendData(form.attr("action"), form.attr("method"), data, getSubmittedSensor);
+}
+```
+上面的示例中，第一行是最重要的。通过调用`event.preventDefault`，使浏览器跳过此事件中通常会被执行的默认行为。在这种情况下，表单的内容将作为表单编码数据被发送到表单元素中`action`属性指定的地址。我们的API不采用形式编码的请求，因此这将导致415错误，将第一行代码放在所有函数中用来替换默认行为变得十分重要。另一个示例是[anchor元素](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a)，通常在单击该锚元素时，会有相关联的URL跟随。在本示例中，这种超链接元素也是我们不想要的东西，因为整个客户端都是基于一个我们不会离开页面的想法而建立的。如今，sendData函数已被通用化，可用于所有具有请求正文的请求：
+```python
+function sendData(href, method, item, postProcessor) {
+    $.ajax({
+        url: href,
+        type: method,
+        data: JSON.stringify(item),
+        contentType: "application/json",
+        processData: false,
+        success: postProcessor,
+        error: renderError
+    });
+}
+```
+在这里，我们使用回调参数启用POST处理。在POST请求的情况下，成功的POST处理将会把传感器的数据附加到传感器表中。我们有以下选项可以做：
+1. 使用本地数据：从表单中读取值并将其放入表格中
+2. 重新获取传感器集合
+3. 使用`location header`获取新传感器并将数据插入表中
+当然这些选项或多或少都有一点问题需要解决。如果资源具有由API服务器自己生成的属性，并且本地数据中没有控件管理时，不建议直接使用本地数据。重新获取整个传感器集合可以避免数据不一致的情况，但这是一项非常繁琐的操作。最后一个选项也可能会出现问题，尤其是如果传感器附带了在这张视图中我们不需要一堆数据时。当然最后一个选项在这种情况下仍然是最好的，因此我们会迅速链接到一个Ajax调用：之前申明过的通用型`getResource`，再加上之前提到的在GET请求之后将传感器数据添加到表中的函数。
+```python
+function appendSensorRow(body) {
+    $(".resulttable tbody").append(sensorRow(body));
+}
+
+function getSubmittedSensor(data, status, jqxhr) {
+    let href = jqxhr.getResponseHeader("Location");
+    getResource(href, appendSensorRow);
+}
+```
+在这里，我们还看到了一个相当神秘的关于jqxhr对象的用法-用来获取Location header.
+
+### 显示各个传感器
+最后，我们需要导航链接才能在轻松的获取自己想要的资源。在此示例中，我们主要操作集中在传感器集合和各个传感器之间。首先要做的是通过每个传感器中的“self”链接关系来丰富其在表中的内容，使我们能够获取有关每个传感器的细节。这需要我们更改`sensorRow`功能：
+```python
+function sensorRow(item) {
+    let link = "<a href='" +
+                item["@controls"].self.href +
+                "' onClick='followLink(event, this, renderSensor)'>show</a>";
+
+    return "<tr><td>" + item.name +
+            "</td><td>" + item.model +
+            "</td><td>" + item.location +
+            "</td><td>" + link + "</td></tr>";
+}
+```
+关于锚标记<a>的定义看起来有些混乱，但我们应该清楚的是，我们从控件中获取了URL，我们还将通过标记`onClick`连接到一个将其正常行为覆盖的函数。这与之前的方法的区别：当我们使用jQuery中的方法（例如submit）设置事件处理程序时，我们仅需要写入函数的名称；但是当使用HTML属性时，整个调用函数都会被编写。当然这个函数也很简单：
+```python
+function followLink(event, a, renderer) {
+    event.preventDefault();
+    getResource($(a).attr("href"), renderer);
+}
+```
+再次说明，最重要的一步是阻止默认行为。之后，我们将以自己的方式处理：通过获取传感器的资源，并使用新的渲染功能将其插入到DOM。当需要显示可编辑的资源时，将数据放入表单中展示将是一种比较好的方法。这种编辑方式非常简单。对于一些不允许以编辑方式提交修改的属性，我们可以将其放入只读字段中。由于我们已经有一个可以为创建传感器的渲染类似表单的功能，我们可以重用它，然后将更改应用于表单：
+```python
+function renderSensor(body) {
+    $(".resulttable thead").empty();
+    $(".resulttable tbody").empty();
+    renderSensorForm(body["@controls"].edit);
+    $("input[name='name']").val(body.name);
+    $("input[name='model']").val(body.model);
+    $("form input[type='submit']").before(
+        "<label>Location</label>" +
+        "<input type='text' name='location' value='" +
+        body.location + "' readonly>"
+    );
+}
+```
+现在，我们使用`before`方法来将Location字段（该字段不在图式）作为只读字段在提交按钮之前就插入表单中。因为提交是以一种动态的方式进行的，所以我们实际上已经可以编辑传感器。但是，在处理结果时会出现错误，因为后处理功能会在提交后尝试遵循Location标头。但是由于这是一个编辑操作，所以Location不存在。我们可以采用一种更复杂的方式来处理此问题，但是现在，我们只向函数添加一个简单的if语句：
+```python
+function getSubmittedSensor(data, status, jqxhr) {
+    let href = jqxhr.getResponseHeader("Location");
+    if (href) {
+        getResource(href, appendSensorRow);
+    }
+}
+```
+实际上，我们应该考虑再次获取资源或返回传感器集合。为什么？因为更改传感器的名称就会更改其URI。但我们不必太着重于此，我们只需要在导航div上添加一个导航控件即可完成本示例：“collection”链接关系。这意味着可以通过将以下代码片段放入`renderSensor`中来添加另一个看起来有点混乱的锚标记：
+```python
+    $("div.navigation").html(
+        "<a href='" +
+        body["@controls"].collection.href +
+        "' onClick='followLink(event, this, renderSensors)'>collection</a>"
+    );
+```
+然后再将以下这行放入`renderSensor`中，用来清除导航div：
+```python
+    $("div.navigation").empty();
+```
+
+### 完整示例
+您可以从下面下载完整的示例：[admin.js](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/admin.js)
+
+>#### 练习四：分页器 - 测量日
+>分页通常用于大型数据集，而您无疑已经在网络上看到了很多类似的东西。这意味着数据将以一定大小的量被读取，同时会显示一些控件：“next”（“>”）和“prev”（“<”）（有时也包括“first”（“<<”）和“last”（“>>”））。这也与APIs一起结合起来使用。在本练习中，您将实现对测量数据的分页。
+>
+>**学习目标**：使用分页控件从API中提取数据。显示带有分页数据以及相关DOM操纵。
+>
+>**在你开始之前**：我们已经对Sensorhub API服务器进行了最终更新。此更新包含API方面对分页操作的支持，其中分页单位为50。您可以在下面进行下载。
+>[app.py](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/app.py)
+>
+>请记住，您需要创建一个数据库并填充数据。我们在SensorHub API中包含了一些操作命令以简化此任务。[Flask API项目布局教程](https://lovelace.oulu.fi/ohjelmoitava-web/programmable-web-project-spring-2019/flask-api-project-layout/#using-the-command-line-interface)中对它们进行了说明。如果您只想启动它并运行，请执行以下命令：
+>```python
+>flask init-db
+>flask testgen
+>flask run
+>```
+>除此之外，您应该接着从`admin.js`开始。获取在端口5000上运行的API，并将浏览器指向`"http://localhost:5000/admin/"`。在开发过程中，您可能需要进行多次重载。**重要提示**：在浏览器中进行测试时，必须强制重新加载页面-正常重新加载将使CSS和JS文件保持缓存状态，更改并不会生效。你可以使用`Shift`+`F5`进行强制重载。
+>
+>在您下载所得的代码中，请勿随意改动任何未得到指示的代码部分。
+> 
+>**函数修改**：`renderSensor`
+>您需要在导航div元素中添加其他导航控件元件，并应该将其添加到末尾（即作为第二个元素）。像之前的其他链接一样，单击该链接时，`followLink`也会被调用，其中的最后一个参数是`renderMeasurements`函数。同时，可以从“senhub：measurements-first”控件中找到此链接的href属性。
+>
+>**新函数**：`renderMeasurements`
+>当Ajax被调用并返回时，此函数应具有测量集合资源。该集合包含从[查询参数](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/explain.md#请求参数)定义中起始索引开始的50个测量。每个测量资源都有两个属性：
+>* 时间：完整的ISO时间戳记（字符串）
+>* 值：测量值（浮点数）
+>
+>此外，该集合资源还具有以下控件：
+>* `"up"`：返回到传感器资源（与该任务无关）
+>* `"prev"`：向前检索50个测量值，第一个测量值出现时，则不再显示
+>* `"next"`：向后检索50个测量值，最后一个测量值出现时，则不再显示
+>
+>这是在您函数中必须执行的操作列表：
+>* 如果资源表示中存在tablecontrols div中的内容，则将其替换为“prev”和“next”链接
+>    1. 检查HTML，确保其与导航div不同
+>    2. 需要同时在tablecontrol div元素中top和bottom中显示
+>    3. “prev”应始终位于左侧
+>* 将表的标题设置为与测量属性名称相对应（时间放在左侧）
+>* 在表格中显示50个测量值
+>
+>最后，您的用户界面应该具有三个不同的屏幕：一个显示传感器列表，一个显示有关特定传感器的信息，另一个显示传感器的测量值。下图为示例：
+![理想示例：](https://github.com/XCifer/Programmable-Web-Project/blob/master/Exercise_4_ImplementingHypermediaClients/appendix/ex4.png)
+
